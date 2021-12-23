@@ -1,1 +1,4 @@
-This is a starter template for [Learn Next.js](https://nextjs.org/learn).
+Simple issue Github scrapper using:
+
+1. Next.JS
+2. cheerio
