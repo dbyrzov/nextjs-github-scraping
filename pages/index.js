@@ -6,22 +6,17 @@ export default function MainIndex() {
   return (
     <div className="container">
       <Head>
-        <title>First scraping app</title>
+        <title>Github scrape</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <Home></Home>
 
-      {/* <style jsx>{`
+      <style jsx>{`
         .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
+          height: 100%;
         }
-      `}</style> */}
+      `}</style>
     </div>
   )
 }

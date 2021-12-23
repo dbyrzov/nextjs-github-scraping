@@ -3,32 +3,21 @@
   flex-direction: column;
   align-items: center;
   color: white;
+  height: 100%;
 }
 
 .main > h1 {
   color: rgb(32, 71, 116);
   font-size: 100px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
-.main label {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.divContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+.print {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: rgb(84, 123, 160);
   padding: 1rem;
-  background-color: rgb(84, 123, 160);
-}
-
-.footer {
-  position: fixed;
-  bottom: 0;
-  padding: 2rem;
-  background-color: rgb(84, 123, 160);
-  width: 100%;
-  text-align: center;
-  font-size: x-large;
+  font-weight: 800;
 }
