@@ -1,6 +1,7 @@
 const cheerio = require('cheerio');
 const Cors = require('cors');
 let jsonframe = require('jsonframe-cheerio');
+import cookie from 'cookie';
 
 // Initializing the cors middleware
 const cors = Cors({
@@ -25,38 +26,52 @@ export default async (req, res) => {
     await runMiddleware(req, res, cors);
     const user = req.body.user;
     const repo = req.body.repo;
+    let totalPages = 1;
+    let result = [];
 
     if (req.method === 'POST') {
         try {
             const response = await fetch(`https://github.com/${user}/${repo}/issues?q=is%3Aopen+is%3Aissue`);
             const htmlString = await response.text();
             const $ = cheerio.load(htmlString);
-            jsonframe($);
 
-            let frame = { 
-                "issues": {
-                    _s: ".Box-row",
-                    _d: [{
-                        "title": ".Link--primary",
-                        "avatar": "img @ src",
-                        "assignee": ".AvatarStack-body @ aria-label"
-                    }]
-                }	
+            const searchContext = `em[class="current"]`;
+            totalPages = $(searchContext).prop('data-total-pages') || 1;
+            console.log('totalPages')
+            console.log(totalPages)
+
+            for (let index = 1; index <= totalPages; index++) {
+              const response = await fetch(`https://github.com/${user}/${repo}/issues?page=${index}&q=is%3Aopen+is%3Aissue`);
+              const htmlString = await response.text();
+              const $ = cheerio.load(htmlString);
+              jsonframe($);
+              let frame = { 
+                  "issues": {
+                      _s: ".Box-row",
+                      _d: [{
+                          "id": ".Link--primary @ id",
+                          "title": ".Link--primary",
+                          "avatar": "img @ src",
+                          "assignee": "img @ alt",
+                          "commentsCount": ".flex-shrink-0 span:last-of-type a"
+                          // "commentsCount": "div div:last-of-type span:last-of-type a span"
+                      }]
+                  }	
+              }
+
+              let r = $('body').scrape(frame, { string: true });
+              result = result.concat(JSON.parse(r).issues);
             }
 
-            let result = $('body').scrape(frame, { string: true })
-            console.log( result )
+            console.log('result');
+            console.log(result);
 
-            // const searchContext = `div[class="js-navigation-container js-active-navigation-container"]`;
-            // console.log($(searchContext))
-            // const issueCount = $(searchContext).text();
-
+            res.setHeader("Cookie", `github-scraper-user=${user}; github-scraper-repo=${repo}`);
             res.statusCode = 200;
-            return res.json({
-                issues: result.toString()
-            });
+            return res.json(JSON.stringify(result));
         } catch (e) {
-            res.statusCode = 404
+            res.statusCode = 404;
+            console.log(e)
             return res.json({
               error: `not found. Tip: Double check the spelling.`,
             });

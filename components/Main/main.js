@@ -1,14 +1,14 @@
 import React from 'react'
+import Issue from '../Issue/issue';
 import styles from './main.module.css'
+import Cookie from 'universal-cookie'
 
 
-export default function Form() {
+export default function Main() {
     const [user, setUser] = React.useState('');
     const [repo, setRepo] = React.useState('');
     const [issues, setIssues] = React.useState([]);
     const [issuesCnt, setIssuesCnt] = React.useState('');
-    let typingTimer;
-    let typingInterval = 2000;
 
     const issueCount = () => {
         fetch('/api/issue-count', {
@@ -19,32 +19,43 @@ export default function Form() {
             body: JSON.stringify({ user: user, repo: repo })
           })
             .then((res) => res.json())
-            .then((res) => {
-              setIssuesCnt(res.issues);
+            .then((res) => {setIssuesCnt(res);
         });
     }
 
     const scrapeIssues = (e) => {
         e.preventDefault();
+        var cookie = new Cookie();
+        cookie.set('github-scraper-user2', user, {expires: new Date(Date.now()+ 86400)});
+        cookie.set('github-scraper-repo', repo, {expires: new Date(Date.now()+ 86400)});
+
         fetch('/api/issues', {
             method: 'post',
             headers: {
-              'content-type': 'application/json',
+            'content-type': 'application/json',
             },
             body: JSON.stringify({ user: user, repo: repo })
-          })
-            .then((res) => res.json())
-            .then((res) => {
-                let json = JSON.parse(res.issues);
-                console.log(json.issues);
-                setIssues(json.issues);
+        })
+        .then((res) => res.json())
+        .then((res) => {
+            res.forEach(i => {
+                if (i.id) i.id = i.id.split('_')[1];
+                if (i.assignee) i.assignee = i.assignee.substring(1);
+            })
+            setIssues(res);
         });
     }
 
-    const onKeyUpHandle = () => {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(issueCount, typingInterval);
-    }
+
+    React.useState( () => {
+        var cookie = new Cookie();
+        let tmpUser = cookie.get('github-scraper-user2');
+        let tmpRepo = cookie.get('github-scraper-repo');
+
+        if (tmpUser) setUser(tmpUser);
+        if (tmpRepo) setRepo(tmpRepo);
+    }, []);
+
 
     return (
         <>
@@ -52,9 +63,8 @@ export default function Form() {
                 <label htmlFor="username">
                     Username:
                     <input id="username" type="text" value={user} 
-                    onChange={(e) => setUser(e.target.value)}
-                    onKeyUp={onKeyUpHandle}
-                    onKeyDown={clearTimeout(typingTimer)}
+                        onChange={(e) => setUser(e.target.value)}
+                        onBlur={issueCount}
                 />
                 </label>
                 
@@ -62,8 +72,7 @@ export default function Form() {
                     Repository:
                     <input id="repo" type="text" value={repo} 
                         onChange={(e) => setRepo(e.target.value)}
-                        onKeyUp={onKeyUpHandle}
-                        onKeyDown={clearTimeout(typingTimer)}
+                        onBlur={issueCount}
                     />
                 </label>
 
@@ -81,21 +90,18 @@ export default function Form() {
                 {
                     issues.length > 0
                     ?
-                        issues.map(issue = 
-                            <div>issue.title</div>
+                        issues.map(issue => 
+                            <Issue key={'_' + issue.id} issue={issue} user={user} repo={repo}></Issue>
 
                         )
                     :
                         [1,2,3,4,5].map(m => 
-                            <div className={styles.emptyCard}>
+                            <div key={m} className={styles.emptyCard}>
                                 <div></div>
                             </div>
                         )
                 }
             </div>
         </>
-
-
-        
     )
 }

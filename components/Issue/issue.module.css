@@ -1,3 +1,53 @@
 .issueCard {
-  height: 100px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #809fcd;
+  margin: 1rem 1rem 0rem 1rem;
+  border-radius: 5px;
+  padding: 0 1rem 0 1rem;
+  justify-content: space-between;
+  cursor: default;
+}
+
+.issueCard > h2 {
+  width: 50%;
+}
+
+.person {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.person > img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.avatar {
+  margin-right: 0.7rem;
+}
+
+.comments {
+  background-color: rgb(223, 201, 173);
+  margin: 0 1.5rem 0 1.5rem;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.comment > h4 {
+  margin: 0;
+  padding: 0.2rem;
+  background-color: rgb(190, 151, 99);
+}
+
+.comment > p {
+  background-color: rgb(223, 201, 173);
+  padding: 1rem;
+  margin: 0;
+  color: black;
 }

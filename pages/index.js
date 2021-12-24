@@ -8,6 +8,7 @@ export default function MainIndex() {
       <Head>
         <title>Github scrape</title>
         <link rel="icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.13.0/css/all.css"></link>
       </Head>
 
       <Home></Home>
