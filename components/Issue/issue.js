@@ -1,15 +1,18 @@
 import React from 'react';
+import Loading from '../loading/loading';
 import styles from './issue.module.css'
 
 
 export default function Issue({issue, user, repo}) {
     const [isReady, setIsReady] = React.useState(false);
     const [comments, setComments] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(false);
 
     const openComments = () => {
         if (isReady) {
             setIsReady(!isReady);
         } else {
+            setIsLoading(true);
             fetch('/api/comments', {
                 method: 'post',
                 headers: {
@@ -21,12 +24,18 @@ export default function Issue({issue, user, repo}) {
                 .then((res) => {
                     setComments(res);
                     setIsReady(!isReady);
+                    setIsLoading(false);
             });
         }
     }
 
     return (
         <>
+            {
+                isLoading 
+                ? <Loading></Loading>
+                : <></>
+            }
             <div id={issue.id} className={styles.issueCard} onClick={openComments}>
                 <h2>{issue.title || "No title"}</h2>
                 <div className={styles.person}>
@@ -59,6 +68,4 @@ export default function Issue({issue, user, repo}) {
         </>
 
     )
-
-    
 }

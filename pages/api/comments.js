@@ -1,7 +1,6 @@
 const cheerio = require('cheerio');
 const Cors = require('cors');
 let jsonframe = require('jsonframe-cheerio');
-// import cookie from 'cookie';
 
 // Initializing the cors middleware
 const cors = Cors({

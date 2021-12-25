@@ -1,7 +1,6 @@
 const cheerio = require('cheerio');
 const Cors = require('cors');
 let jsonframe = require('jsonframe-cheerio');
-import cookie from 'cookie';
 
 // Initializing the cors middleware
 const cors = Cors({
@@ -37,8 +36,6 @@ export default async (req, res) => {
 
             const searchContext = `em[class="current"]`;
             totalPages = $(searchContext).prop('data-total-pages') || 1;
-            console.log('totalPages')
-            console.log(totalPages)
 
             for (let index = 1; index <= totalPages; index++) {
               const response = await fetch(`https://github.com/${user}/${repo}/issues?page=${index}&q=is%3Aopen+is%3Aissue`);
@@ -54,7 +51,6 @@ export default async (req, res) => {
                           "avatar": "img @ src",
                           "assignee": "img @ alt",
                           "commentsCount": ".flex-shrink-0 span:last-of-type a"
-                          // "commentsCount": "div div:last-of-type span:last-of-type a span"
                       }]
                   }	
               }
@@ -63,10 +59,6 @@ export default async (req, res) => {
               result = result.concat(JSON.parse(r).issues);
             }
 
-            console.log('result');
-            console.log(result);
-
-            res.setHeader("Cookie", `github-scraper-user=${user}; github-scraper-repo=${repo}`);
             res.statusCode = 200;
             return res.json(JSON.stringify(result));
         } catch (e) {

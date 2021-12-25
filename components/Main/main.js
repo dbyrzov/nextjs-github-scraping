@@ -1,7 +1,8 @@
 import React from 'react'
 import Issue from '../Issue/issue';
 import styles from './main.module.css'
-import Cookie from 'universal-cookie'
+import Loading from '../loading/loading';
+import { parseCookies, setCookie, destroyCookie } from 'nookies'
 
 
 export default function Main() {
@@ -9,6 +10,7 @@ export default function Main() {
     const [repo, setRepo] = React.useState('');
     const [issues, setIssues] = React.useState([]);
     const [issuesCnt, setIssuesCnt] = React.useState('');
+    const [isLoading, setIsLoading] = React.useState(false);
 
     const issueCount = () => {
         fetch('/api/issue-count', {
@@ -25,10 +27,16 @@ export default function Main() {
 
     const scrapeIssues = (e) => {
         e.preventDefault();
-        var cookie = new Cookie();
-        cookie.set('github-scraper-user2', user, {expires: new Date(Date.now()+ 86400)});
-        cookie.set('github-scraper-repo', repo, {expires: new Date(Date.now()+ 86400)});
+        setCookie(null, 'github-scraper-user', user, {
+            maxAge: 30 * 24 * 60 * 60,
+            path: '/',
+          });
+        setCookie(null, 'github-scraper-repo', repo, {
+            maxAge: 30 * 24 * 60 * 60,
+            path: '/',
+          });
 
+        setIsLoading(true);
         fetch('/api/issues', {
             method: 'post',
             headers: {
@@ -43,22 +51,26 @@ export default function Main() {
                 if (i.assignee) i.assignee = i.assignee.substring(1);
             })
             setIssues(res);
+            setIsLoading(false);
         });
     }
 
 
     React.useState( () => {
-        var cookie = new Cookie();
-        let tmpUser = cookie.get('github-scraper-user2');
-        let tmpRepo = cookie.get('github-scraper-repo');
-
-        if (tmpUser) setUser(tmpUser);
-        if (tmpRepo) setRepo(tmpRepo);
+        const cookies = parseCookies();
+        setUser(cookies['github-scraper-user']);
+        setRepo(cookies['github-scraper-repo']);
     }, []);
 
 
     return (
         <>
+            {
+                isLoading 
+                ? <Loading></Loading>
+                : <></>
+            }
+
             <form onSubmit={scrapeIssues} className={styles.formContainer}>
                 <label htmlFor="username">
                     Username:
